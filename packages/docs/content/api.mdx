@@ -3122,6 +3122,31 @@ const user = await idToUser.parse("abc123");
   If you use async transforms, you must use a `.parseAsync` or `.safeParseAsync` when parsing data! Otherwise Zod will throw an error.
 </Callout>
 
+### `.overwrite()`
+
+Use `.overwrite()` to change a parsed value without changing its inferred type. Unlike [`.transform()`](#transform), it returns the same kind of schema, so you can still chain its methods. Checks added afterward see the updated value.
+
+<Tabs groupId="lib" items={["Zod", "Zod Mini"]}>
+<Tab value="Zod">
+```ts
+const schema = z.number().overwrite((value) => value ** 2).max(100);
+
+schema.parse(-5); // => 25
+schema.safeParse(-11).success; // => false
+```
+</Tab>
+<Tab value="Zod Mini">
+```ts
+const schema = z.number().check(z.overwrite((value) => value ** 2), z.maximum(100));
+
+z.parse(schema, -5); // => 25
+z.safeParse(schema, -11).success; // => false
+```
+</Tab>
+</Tabs>
+
+Use `.transform()` instead when the output has a different type.
+
 ### `.preprocess()` 
 
 Piping a transform into another schema is another common pattern, so Zod provides a convenience `z.preprocess()` function.
